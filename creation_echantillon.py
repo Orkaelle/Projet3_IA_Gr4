@@ -15,19 +15,20 @@ def creation_echantillon_mails (tailleEchantillon, nbEchantillon) :
     mails_count = sum(len(files) for _, _, files in os.walk(mailDir)) 
 
     # On purge le dossier cible
-    shutil.rmtree(os.path.join(dirname,'echantillons'))
+    if not os.path.exists(os.path.join(dirname,'echantillons')):
+        os.makedirs(os.path.join(dirname,'echantillons'))
+    else :
+        shutil.rmtree(os.path.join(dirname,'echantillons'))
 
     for echantillon in range(1, nbEchantillon+1) :
         print ('Echantillon numéro', echantillon)
-        echantillonDir = os.path.join(dirname,'echantillons', str(echantillon))
 
-        if not os.path.exists(echantillonDir):
-            os.makedirs(echantillonDir)
+        echantillonDir = os.path.join(dirname,'echantillons', str(echantillon))
+        os.makedirs(echantillonDir)
 
         # On pioche 10K mails aléatoires et on les copie dans le dossier échantillon
-        liste_rand = []
-        for n in range(tailleEchantillon) :
-            liste_rand.append(random.randint(0,mails_count))
+        liste_rand = random.sample(range(mails_count),tailleEchantillon)
+        
         id_mail = 0
         for repertoire, sousRepertoires, fichiers in os.walk(mailDir):
             for f in fichiers :
@@ -36,11 +37,11 @@ def creation_echantillon_mails (tailleEchantillon, nbEchantillon) :
                     liste_rand.remove(id_mail)
                 id_mail +=1
         print ("Création de l'échantillon", echantillon, "réalisé avec succès :")
-        print (tailleEchantillon, "mails aléatoires ont été copiés dans le répertoire cible.\n")
+        print (tailleEchantillon, "mails aléatoires ont été copiés dans le répertoire numéro", echantillon, "\n")
     
-    print ('OK -', nbEchantillon, "de", tailleEchantillon, 'créé(s) dans le(s) répertoire(s) cible(s).')
+    print ('OK -', nbEchantillon, "échantillon(s) de", tailleEchantillon, 'mails créé(s) dans le(s) répertoire(s) cible(s).')
 
 
-creation_echantillon_mails(15, 3)
+creation_echantillon_mails(43, 5)
 
 
