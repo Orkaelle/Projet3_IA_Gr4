@@ -43,4 +43,4 @@ def creation_echantillon_mails (nbEchantillon, tailleEchantillon) :
     print ('OK -', nbEchantillon, "échantillon(s) de", tailleEchantillon, 'mails créé(s) dans le(s) répertoire(s) cible(s).\n')
 
 
-creation_echantillon_mails(2, 100)
+creation_echantillon_mails(1, 10)
