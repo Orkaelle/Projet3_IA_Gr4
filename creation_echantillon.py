@@ -5,7 +5,7 @@ import shutil
 
 def creation_echantillon_mails (tailleEchantillon, nbEchantillon) :
     """Création d'un échantillon de mails parmis tous les mails récupérés dans le brief"""
-    print ('\nCréation de', nbEchantillon, 'échantillons de', tailleEchantillon, 'mails...\n')
+    print ('\nCréation de', nbEchantillon, 'échantillon(s) de', tailleEchantillon, 'mail(s)...\n')
 
     # Définition des différents répertoires
     dirname = os.getcwd()
@@ -28,12 +28,14 @@ def creation_echantillon_mails (tailleEchantillon, nbEchantillon) :
 
         # On pioche 10K mails aléatoires et on les copie dans le dossier échantillon
         liste_rand = random.sample(range(mails_count),tailleEchantillon)
+        print (len(liste_rand))
         
         id_mail = 0
         for repertoire, sousRepertoires, fichiers in os.walk(mailDir):
             for f in fichiers :
                 if id_mail in liste_rand :
                     shutil.copy(os.path.join(repertoire, f), echantillonDir)
+                    os.rename(os.path.join(echantillonDir, f),os.path.join(echantillonDir, str(id_mail)))
                     liste_rand.remove(id_mail)
                 id_mail +=1
         print ("Création de l'échantillon", echantillon, "réalisé avec succès :")
@@ -42,6 +44,6 @@ def creation_echantillon_mails (tailleEchantillon, nbEchantillon) :
     print ('OK -', nbEchantillon, "échantillon(s) de", tailleEchantillon, 'mails créé(s) dans le(s) répertoire(s) cible(s).')
 
 
-creation_echantillon_mails(43, 5)
+creation_echantillon_mails(1000, 1)
 
 
