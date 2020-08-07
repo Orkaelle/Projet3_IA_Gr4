@@ -3,3 +3,5 @@ echantillons/
 maildir/
 echantillons/
 *.csv
+brouillons/
+datasets

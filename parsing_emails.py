@@ -2,8 +2,10 @@ import os
 import mailparser
 import csv
 
+
 # recuperation du dossier du travail
 dir_path = os.path.dirname(os.path.realpath(__file__))
+
 
 """ recuperer les donneés depuis un email
 return: objet json contenant le contenu d'un email
@@ -21,38 +23,53 @@ def get_data_from_email(file):
 
     # parser l'email
     mail = mailparser.parse_from_file(file)
-
-    # l'emetteur de l'email
-    email_details['from'] = mail.from_[0][1]
     
-    # la liste des destinataires
+    # recuperer les infos de l'email
+    email_details['from'] = mail.from_[0][1]   
     for i in range(0, len(mail.to)):
         email_details['to'].append(mail.to[i][1])
     
-    # la date d'envoie de l'email
     email_details['date'] = mail.date
-
-    # le sujet de l'email
     email_details['subject'] = mail.subject
-
-    # le contenu de l'emamil
     email_details['body'] = mail.body
 
     return email_details
 
 
-def append_email_to_csv(file):
+"""enregistrer les infos de l'email dans le fichier csv
+"""
+def append_email_to_csv(directory, file):
+
+    new_file = False
+
+    # creation lien vers fichier dataset
+    dir_basename = os.path.basename(os.path.normpath(directory))
     
+    # creation de dossier de datasets
+    directory_dataset = os.path.join(dir_path, 'datasets')   
+    if not os.path.exists(directory_dataset):
+        os.makedirs(directory_dataset)
+    
+    # lien du fichier dataset
+    file_path = os.path.join(directory_dataset, f'dataset_{dir_basename}.csv')
+
+    # creation du fichier s'il n'existe pas
+    if not os.path.exists(file_path):
+        new_file = True
+
     # recuperer le contenu de l'email
     email_details = get_data_from_email(file)
 
-    # ouvrir le fichier dataset
-    file_path = os.path.join(dir_path, 'dataset_brut.csv')
+    # ecriture des données dans le fichier
     with open(file_path, mode='a+', newline='') as csv_file:
         
         # definition des parametres du dictionnaire à enregistrer dans le fichier csv
         fieldnames = ['from', 'to','date', 'subject', 'body']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+
+        # creation des en-tetes si c'est un nouveau fichier
+        if new_file:
+            writer.writeheader()
 
         # ecriture du contenu de l'email dans le fichier csv
         writer.writerow(
@@ -62,25 +79,24 @@ def append_email_to_csv(file):
                 'date': email_details['date'],
                 'subject': email_details['subject'],
                 'body': email_details['body']
-                }
-             )
+            }
+        )
+
 
 """fonction qui permet d'iterer un dossier contenant des fichiers d'emails
 """
 def iterate_emails():
-    file_path = os.path.join(dir_path, 'echantillons')
-    for subdir, dirs, files in os.walk(file_path):
+    echantillon_path = os.path.join(dir_path, 'echantillons')
+    for subdir, dirs, files in os.walk(echantillon_path):
         for file in files:
-            append_email_to_csv(os.path.join(subdir, file))
+            file_path = os.path.join(subdir, file)
+            append_email_to_csv(subdir, file_path)
 
-"""ecriture du fichier avant recuperation des données
-"""
-def write_dataset_file():
-    file_path = os.path.join(dir_path, 'dataset_brut.csv')
-    with open(file_path, mode='w+', newline='') as csv_file:
-        fieldnames = ['from', 'to', 'date', 'subject', 'body']
-        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-        writer.writeheader()
 
-write_dataset_file()
-iterate_emails()
+def main():
+    """Entrypoint to application."""
+    iterate_emails()
+
+
+if __name__ == '__main__':
+    main()
