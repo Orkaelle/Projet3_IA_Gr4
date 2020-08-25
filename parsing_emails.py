@@ -31,7 +31,9 @@ def get_data_from_email(file):
     
     email_details['date'] = mail.date
     email_details['subject'] = mail.subject
-    email_details['body'] = mail.body
+
+    bodyEnd = mail.body.find('-----Original Message-----')
+    email_details['body'] = mail.body[0:bodyEnd]
 
     return email_details
 

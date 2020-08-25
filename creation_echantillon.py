@@ -9,7 +9,7 @@ def creation_echantillon_mails (nbEchantillon, tailleEchantillon) :
     print ('\nCréation de', nbEchantillon, 'échantillon(s) de', tailleEchantillon, 'mail(s)...\n')
 
     # Définition des différents répertoires
-    dirname = os.getcwd()
+    dirname = os.path.abspath(os.path.split(__file__)[0])
     mailDir = os.path.join(dirname,'maildir')
 
     # Comptage des emails
