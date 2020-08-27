@@ -10,20 +10,33 @@ from nltk.corpus import stopwords
 from nltk.corpus import wordnet
 from gensim.models import KeyedVectors
 
+import sys
 import csv
 import numpy
+
 
 synonyms = []
 contenuClusters = []
 selection = []
 listeCategories = []
 
+maxInt = sys.maxsize
+divisionValeur = 0
+
+while True:
+    divisionValeur += 1
+    try:
+        csv.field_size_limit(maxInt)
+        break
+    except OverflowError:
+        maxInt = int(maxInt / divisionValeur)
+
 #Chargement du fichier permettant de comparer deux mots-clés
 filename = 'GoogleNews-vectors-negative300.bin'
 model = KeyedVectors.load_word2vec_format(filename, binary=True)
 
 #Lecture du fichier texte contenant les courriels
-with open('dataset_1.csv') as csv_file:
+with open('dataset_10.csv') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     documents  = [""]
     comptageLigne = 0
@@ -40,8 +53,8 @@ vectoriseur = TfidfVectorizer(stop_words=listeCompleteMotsBloques)
 X = vectoriseur.fit_transform(documents)
 
 #Initalisation de la recherche de clusters
-nombreClusters = 6
-modele = KMeans(n_clusters=nombreClusters, init='k-means++', max_iter=100, n_init=1)
+nombreClusters = 100
+modele = KMeans(n_clusters=nombreClusters, init='k-means++', max_iter=6000, n_init=1)
 modele.fit(X)
 
 ordreCentroides = modele.cluster_centers_.argsort()[:, ::-1]
