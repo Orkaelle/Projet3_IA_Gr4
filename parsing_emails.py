@@ -11,9 +11,11 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 return: objet json contenant le contenu d'un email
 """
 def get_data_from_email(file):
-    
+
     # initialisation de l'objet à retourner
     email_details = {
+        'message_id': None,
+        'name': None,
         'from': None,
         'to': [],
         'date': None,
@@ -25,15 +27,15 @@ def get_data_from_email(file):
     mail = mailparser.parse_from_file(file)
     
     # recuperer les infos de l'email
+    email_details['message_id'] = mail.headers['Message-ID'] #mail.message_as_string.partition('\n')[0].partition(':')[2]
+    email_details['name'] = mail.headers['X-From']
     email_details['from'] = mail.from_[0][1]   
     for i in range(0, len(mail.to)):
         email_details['to'].append(mail.to[i][1])
     
     email_details['date'] = mail.date
-    email_details['subject'] = mail.subject
-
-    bodyEnd = mail.body.find('-----Original Message-----')
-    email_details['body'] = mail.body[0:bodyEnd]
+    email_details['subject'] = mail.subject if mail.subject else 'None'
+    email_details['body'] = mail.body
 
     return email_details
 
@@ -57,16 +59,17 @@ def append_email_to_csv(directory, file):
 
     # creation du fichier s'il n'existe pas
     if not os.path.exists(file_path):
+        print(f'creation dataset: {dir_basename}')
         new_file = True
 
     # recuperer le contenu de l'email
     email_details = get_data_from_email(file)
 
-    # ecriture des données dans le fichier
+    # # ecriture des données dans le fichier
     with open(file_path, mode='a+', newline='') as csv_file:
         
         # definition des parametres du dictionnaire à enregistrer dans le fichier csv
-        fieldnames = ['from', 'to','date', 'subject', 'body']
+        fieldnames = ['message_id', 'from', 'to','date', 'subject', 'body']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
         # creation des en-tetes si c'est un nouveau fichier
@@ -76,6 +79,7 @@ def append_email_to_csv(directory, file):
         # ecriture du contenu de l'email dans le fichier csv
         writer.writerow(
             {
+                'message_id': email_details['message_id'],
                 'from': email_details['from'],
                 'to': email_details['to'],
                 'date': email_details['date'],
@@ -83,6 +87,7 @@ def append_email_to_csv(directory, file):
                 'body': email_details['body']
             }
         )
+    
 
 
 """fonction qui permet d'iterer un dossier contenant des fichiers d'emails
